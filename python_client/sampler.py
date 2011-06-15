@@ -148,7 +148,7 @@ if __name__ == "__main__":
 		port_number = int(sys.argv[1])
 	except :
 		port_number = sys.argv[1]
-	s = serial.Serial(port_number, 57600, timeout=1)
+	s = serial.Serial(port_number, 115200, timeout=1)
 
 	r = Reader(s)
 	r.start()

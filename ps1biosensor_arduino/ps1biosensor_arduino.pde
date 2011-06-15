@@ -60,7 +60,7 @@ void setup() {
   LCDClear(WHITE);    // Clear LCD to a solid color
   LCDPutStr(chMsg, 0, 4, ORANGE, WHITE); // Write information on display
 
-  Serial.begin(57600);        // initialize the serial port 
+  Serial.begin(115200);        // initialize the serial port 
   // Set Timer1 to run at 255Hz
   Timer1.initialize(3906); 
   //we don't really need pwm output from the timer so commenting out
