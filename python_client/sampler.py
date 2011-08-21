@@ -4,6 +4,8 @@ import serial
 import Queue
 import sys
 import time
+import os.path
+
 try :
 	import simplejson as json
 except ImportError :
@@ -122,15 +124,20 @@ class MainHandler(tornado.web.RequestHandler):
 		htmlf.close()
 		self.write(html)
 
-class FlotHandler(tornado.web.RequestHandler):
-	def get(self, fn) :
-		# TODO file security!
-		fn = 'flot/%s' % fn
-		fh = open(fn, 'r')
-		try :
-			self.write(fh.read())
-		finally :
-			fh.close()
+class JSHandler(tornado.web.RequestHandler):
+	def get(self, fn):
+		if not hasattr(self.__class__, 'fcache') :
+			self.__class__.fcache = {}
+
+		if fn in self.__class__.fcache :
+			self.write(self.__class__.fcache[fn])
+		else :
+			ffn = os.path.join('flot', fn)
+			if not os.path.exists(ffn) :
+				raise tornado.web.HTTPError(404)
+			d = open(ffn).read()
+			self.__class__.fcache[fn] = d
+			self.write(d)
 
 class DataHandler(tornado.web.RequestHandler):
 	def initialize(self, writer):
@@ -157,7 +164,7 @@ if __name__ == "__main__":
 
 	application = tornado.web.Application([
 		(r"/$", MainHandler),
-		(r'/flot/(.*)', FlotHandler),
+		(r"/flot/([a-z0-9\.\-]+\.js)$", JSHandler), # pattern is a security issue, be careful!
 		(r"/a", DataHandler, dict(writer=w)),
 	])
 	application.listen(8888)
